@@ -1,8 +1,24 @@
 const express = require("express");
-const fruits = require("./models/fruits");
+const Fruit = require("./models/fruits");
 const vegetables = require("./models/vegetables");
 const app = express();
 const port = 3000;
+
+const mongoose = require("mongoose");
+
+require('dotenv').config()
+
+//... and then farther down the file
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+mongoose.connection.once("open", () => {
+  console.log("connected to mongo");
+});
+
+
+
 
 //middleware should be before your routes
 app.use((req, res, next) => {
@@ -30,24 +46,28 @@ app.engine("jsx", require("jsx-view-engine").createEngine());
 
 //////
 
-app.get("/fruits", function (req, res) {
-  res.render("fruits/Index", { fruits: fruits });
+app.get("/fruits", (req, res) => {
+  Fruit.find({}, (error, allFruits) => {
+    res.render("fruits/Index", {
+      fruits: allFruits,
+    });
+  });
 });
 
-app.get("/vegetables", function (req, res) {
-  res.render("vegetables/IndexVeg", { vegetables: vegetables });
-  console.log({vegetables:vegetables})
-});
+// app.get("/vegetables", function (req, res) {
+//   res.render("vegetables/IndexVeg", { vegetables: vegetables });
+//   console.log({vegetables:vegetables})
+// });
 
 //////
 
 app.get("/fruits/new", (req, res) => {
-  res.render("fruits/NEW");
+  res.render("fruits/New");
 });
 
-app.get("/vegetables/new", (req, res) => {
-  res.render("vegetables/New");
-});
+// app.get("/vegetables/new", (req, res) => {
+//   res.render("vegetables/New");
+// });
 
 //////
 
@@ -55,25 +75,27 @@ app.get("/vegetables/new", (req, res) => {
 //   res.send(fruits[req.params.indexOfFruitsArray]);
 // });
 
-app.get("/fruits/:indexOfFruitsArray", function (req, res) {
-  res.render("fruits/Show", {
-    //second param must be an object
-    fruit: fruits[req.params.indexOfFruitsArray], //there will be a variable available inside the ejs file called fruit, its value is fruits[req.params.indexOfFruitsArray]
+app.get("/fruits/:id", (req, res) => {
+  Fruit.findById(req.params.id, (err, foundFruit) => {
+    res.render("fruits/Show", {
+      fruit: foundFruit,
+    });
   });
 });
 
-
-app.get("/vegetables/:indexOfVegetablesArray", function (req, res) {
-  res.render("vegetables/ShowVeg", {
-    //second param must be an object
-    vegetables: vegetables[req.params.indexOfVegetablesArray],
-  });
-});
+// app.get("/vegetables/:indexOfVegetablesArray", function (req, res) {
+//   res.render("vegetables/ShowVeg", {
+//     //second param must be an object
+//     vegetables: vegetables[req.params.indexOfVegetablesArray],
+//   });
+// });
 
 /////////
 
 //Post
-app.post("/fruits", (req, res) => {
+
+//... and then farther down the file
+app.post("/fruits/", (req, res) => {
   if (req.body.readyToEat === "on") {
     //if checked, req.body.readyToEat is set to 'on'
     req.body.readyToEat = true;
@@ -81,23 +103,23 @@ app.post("/fruits", (req, res) => {
     //if not checked, req.body.readyToEat is undefined
     req.body.readyToEat = false;
   }
-  fruits.push(req.body);
-  console.log(fruits);
-  res.redirect("/fruits"); //send the user back to /fruits
+  Fruit.create(req.body, (error, createdFruit) => {
+    res.redirect("/fruits");
+  });
 });
 
-app.post("/vegetables", (req, res) => {
-  if (req.body.readyToEat === "on") {
-    //if checked, req.body.readyToEat is set to 'on'
-    req.body.readyToEat = true;
-  } else {
-    //if not checked, req.body.readyToEat is undefined
-    req.body.readyToEat = false;
-  }
-  vegetables.push(req.body);
-  console.log(vegetables);
-  res.redirect("/vegetables"); //send the user back to /fruits
-});
+// app.post("/vegetables", (req, res) => {
+//   if (req.body.readyToEat === "on") {
+//     //if checked, req.body.readyToEat is set to 'on'
+//     req.body.readyToEat = true;
+//   } else {
+//     //if not checked, req.body.readyToEat is undefined
+//     req.body.readyToEat = false;
+//   }
+//   vegetables.push(req.body);
+//   console.log(vegetables);
+//   res.redirect("/vegetables"); //send the user back to /fruits
+// });
 
 ///////
 
