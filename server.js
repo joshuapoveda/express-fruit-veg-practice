@@ -42,7 +42,7 @@ app.get("/vegetables", function (req, res) {
 //////
 
 app.get("/fruits/new", (req, res) => {
-  res.render("fruits/New");
+  res.render("fruits/NEW");
 });
 
 app.get("/vegetables/new", (req, res) => {

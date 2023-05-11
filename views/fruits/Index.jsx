@@ -52,8 +52,17 @@ module.exports = Index;
 //           <a href="/fruits/new">Create a New Fruit</a>
 //         </nav>
 //       </div>
+      
 //     );
+//     <nav>
+//     <a href="/fruits/new">Create a New Fruit</a>
+// </nav>
 //   }
+  
 // }
+
+// Fruit.create(req.body, (error, createdFruit)=>{
+//   res.redirect('/fruits');
+// });
 
 // module.exports = Index;
